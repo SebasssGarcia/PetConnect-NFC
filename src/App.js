@@ -292,7 +292,10 @@ function App() {
             <div className="App">
               <header className="App-header">
                 <h1>Registro de Mascotas</h1>
-                {user && <button onClick={handleLogout} className="logout-btn">Cerrar sesión</button>}
+                <nav style={{ marginBottom: 10 }}>
+                  <a href="/welcome.html" style={{ color: '#fff', marginRight: 16, textDecoration: 'underline' }}>¿Nuevo? ¿Qué es esto?</a>
+                  {user && <button onClick={handleLogout} className="logout-btn">Cerrar sesión</button>}
+                </nav>
                 <p>¡Bienvenido! Escanea tu llavero NFC para comenzar el registro de tu mascota.</p>
               </header>
               <main>
