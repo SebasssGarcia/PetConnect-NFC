@@ -189,8 +189,7 @@ function App() {
       setCheckingSession(true);
       setSessionError("");
       try {
-        const { data, error } = await supabase.auth.getSession();
-        if (error) setSessionError("Error al obtener la sesión: " + error.message);
+        const { data } = await supabase.auth.getSession();
         setUser(data.session?.user || null);
         if (data.session?.user) obtenerMascotas(data.session.user.id);
       } catch (e) {
@@ -212,12 +211,12 @@ function App() {
 
   const obtenerMascotas = async (userId) => {
     setCargandoMascotas(true);
-    const { data, error } = await supabase
+    const { data } = await supabase
       .from("mascotas")
       .select("id, nombre_mascota, raza, edad, nombre_duenio, telefono, foto_url, fecha_registro")
       .eq("user_id", userId)
       .order("fecha_registro", { ascending: false });
-    if (!error) setMascotas(data);
+    setMascotas(data);
     setCargandoMascotas(false);
   };
 
