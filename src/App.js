@@ -381,6 +381,25 @@ function App() {
                                     Ver ficha pública
                                   </a>
                                 </div>
+                                <div style={{ marginTop: 6 }}>
+                                  <input
+                                    type="text"
+                                    value={`${getBaseUrl()}/mascota/${m.id}`}
+                                    readOnly
+                                    style={{ width: "80%", fontSize: "0.95rem", marginRight: 4 }}
+                                    onFocus={e => e.target.select()}
+                                  />
+                                  <button
+                                    type="button"
+                                    style={{ fontSize: "0.95rem", padding: "2px 10px" }}
+                                    onClick={() => {
+                                      navigator.clipboard.writeText(`${getBaseUrl()}/mascota/${m.id}`);
+                                      alert("¡Enlace copiado al portapapeles! Ahora grábalo en tu llavero NFC.");
+                                    }}
+                                  >
+                                    Copiar enlace NFC
+                                  </button>
+                                </div>
                               </div>
                               <button onClick={() => setFotoEditandoId(fotoEditandoId === m.id ? null : m.id)} style={{ marginBottom: 8 }}>
                                 {fotoEditandoId === m.id ? "Cancelar" : m.foto_url ? "Cambiar foto" : "Agregar foto"}
