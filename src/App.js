@@ -11,7 +11,7 @@ function MascotaPublica() {
 
   useEffect(() => {
     const fetchMascota = async () => {
-      const { data, error } = await supabase
+      const { data } = await supabase
         .from("mascotas")
         .select("id, nombre_mascota, raza, edad, nombre_duenio, telefono, foto_url")
         .eq("id", id)
@@ -78,7 +78,7 @@ function FotoMascotaEditor({ mascota, onFotoActualizada }) {
     }
     setLoading(true);
     const nombreArchivo = `${mascota.id}_${Date.now()}_${foto.name}`;
-    const { data: storageData, error: storageError } = await supabase.storage
+    const { error: storageError } = await supabase.storage
       .from("mascotas")
       .upload(nombreArchivo, foto, { cacheControl: "3600", upsert: true });
     if (storageError) {
