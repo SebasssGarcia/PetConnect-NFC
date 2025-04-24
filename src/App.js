@@ -268,6 +268,21 @@ function App() {
     return window.location.origin;
   };
 
+  function grabarNFC(url) {
+    if ('NDEFWriter' in window) {
+      const ndef = new window.NDEFWriter();
+      ndef.write(url)
+        .then(() => {
+          alert('¡Enlace grabado en el NFC correctamente!');
+        })
+        .catch((error) => {
+          alert('Error al grabar el NFC: ' + error);
+        });
+    } else {
+      alert('Tu navegador no soporta escritura NFC. Usa Chrome en Android.');
+    }
+  }
+
   return (
     <Router>
       <Routes>
@@ -391,13 +406,20 @@ function App() {
                                   />
                                   <button
                                     type="button"
-                                    style={{ fontSize: "0.95rem", padding: "2px 10px" }}
+                                    style={{ fontSize: "0.95rem", padding: "2px 10px", marginRight: 4 }}
                                     onClick={() => {
                                       navigator.clipboard.writeText(`${getBaseUrl()}/mascota/${m.id}`);
                                       alert("¡Enlace copiado al portapapeles! Ahora grábalo en tu llavero NFC.");
                                     }}
                                   >
                                     Copiar enlace NFC
+                                  </button>
+                                  <button
+                                    type="button"
+                                    style={{ fontSize: "0.95rem", padding: "2px 10px" }}
+                                    onClick={() => grabarNFC(`${getBaseUrl()}/mascota/${m.id}`)}
+                                  >
+                                    Grabar enlace en NFC
                                   </button>
                                 </div>
                               </div>
