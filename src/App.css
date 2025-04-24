@@ -1,0 +1,161 @@
+body {
+  margin: 0;
+  padding: 0;
+  font-family: 'Segoe UI', Arial, sans-serif;
+  background: #f5f6fa;
+  color: #222;
+  line-height: 1.6;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+.App {
+  max-width: 800px;
+  margin: 40px auto;
+  padding: 20px;
+  background: #fff;
+  border: 1px solid #ddd;
+  border-radius: 10px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
+
+.App-header {
+  background: #4e73df;
+  color: white;
+  padding: 1rem;
+  text-align: center;
+  border-radius: 10px 10px 0 0;
+}
+
+.App-header h1 {
+  margin: 0;
+  font-size: 1.5rem;
+}
+
+.pet-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.2rem;
+  background: #f8fafc;
+  padding: 1.5rem;
+  border-radius: 8px;
+  margin: 2rem auto 0 auto;
+  max-width: 400px;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+}
+
+.pet-form label {
+  display: flex;
+  flex-direction: column;
+  font-weight: 500;
+  color: #333;
+}
+
+.pet-form input {
+  margin-top: 0.3rem;
+  padding: 0.6rem;
+  border: 1px solid #bfc9d1;
+  border-radius: 5px;
+  font-size: 1rem;
+  background: #fff;
+}
+
+.pet-form button {
+  margin-top: 1rem;
+  padding: 0.8rem;
+  background: #4e73df;
+  color: #fff;
+  border: none;
+  border-radius: 5px;
+  font-size: 1.1rem;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.pet-form button:hover {
+  background: #2e59d9;
+}
+
+.lista-mascotas {
+  margin: 2.5rem auto 0 auto;
+  max-width: 500px;
+  background: #f8fafc;
+  border-radius: 8px;
+  padding: 1.2rem;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+}
+
+.lista-mascotas h2 {
+  margin-top: 0;
+  color: #4e73df;
+  font-size: 1.2rem;
+}
+
+.lista-mascotas ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.mascota-item {
+  background: #fff;
+  border: 1px solid #e3e6f0;
+  border-radius: 6px;
+  padding: 0.8rem 1rem;
+  margin-bottom: 1rem;
+  font-size: 1rem;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.02);
+}
+
+.foto-mascota {
+  display: block;
+  max-width: 100px;
+  max-height: 100px;
+  margin-bottom: 0.6rem;
+  border-radius: 8px;
+  object-fit: cover;
+  border: 2px solid #4e73df22;
+}
+
+.mensaje-estado {
+  margin: 1.2rem auto 0 auto;
+  max-width: 400px;
+  padding: 0.9rem 1rem;
+  border-radius: 6px;
+  background: #eaf6e7;
+  color: #226c2c;
+  font-weight: 500;
+  text-align: center;
+}
+
+@media (max-width: 600px) {
+  .App {
+    margin: 20px auto;
+    padding: 10px;
+  }
+  .App-header {
+    padding: 0.5rem;
+  }
+  .App-header h1 {
+    font-size: 1.2rem;
+  }
+  .pet-form {
+    padding: 0.7rem;
+    max-width: 100%;
+  }
+  .lista-mascotas {
+    padding: 0.5rem;
+    max-width: 100%;
+  }
+  .mascota-item {
+    padding: 0.6rem 0.7rem;
+    font-size: 0.98rem;
+  }
+  .foto-mascota {
+    max-width: 70px;
+    max-height: 70px;
+  }
+}
