@@ -1,8 +1,16 @@
 import React, { useState, useEffect } from "react";
 import "./App.css";
+import "./authFormStyles.css";
 import { supabase } from "./supabaseClient";
 import { QRCodeSVG } from "qrcode.react";
-import { BrowserRouter as Router, Routes, Route, Link, useParams } from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route, Navigate, useParams, Link } from "react-router-dom";
+import Dashboard from "./pages/Dashboard";
+import NuevaMascota from "./pages/NuevaMascota";
+import MascotasLista from "./pages/MascotasLista";
+import Navbar from "./components/Navbar";
+import Perfil from "./pages/Perfil";
+import Ayuda from "./pages/Ayuda";
+import RegistroForm from "./RegistroForm";
 
 function MascotaPublica() {
   const { id } = useParams();
@@ -116,344 +124,87 @@ function FotoMascotaEditor({ mascota, onFotoActualizada }) {
   );
 }
 
-function AuthForm({ onAuth }) {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [isLogin, setIsLogin] = useState(true);
-  const [mensaje, setMensaje] = useState("");
-  const [loading, setLoading] = useState(false);
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setMensaje("");
-    setLoading(true);
-    let result;
-    if (isLogin) {
-      result = await supabase.auth.signInWithPassword({ email, password });
-    } else {
-      result = await supabase.auth.signUp({ email, password });
-    }
-    setLoading(false);
-    if (result.error) {
-      setMensaje(result.error.message);
-    } else {
-      setMensaje(isLogin ? "¡Bienvenido!" : "¡Registro exitoso! Revisa tu correo para confirmar.");
-      onAuth();
-    }
-  };
-
+function MainMenu({ user, onLogout }) {
   return (
-    <div className="auth-form">
-      <h2>{isLogin ? "Iniciar sesión" : "Registrarse"}</h2>
-      <form onSubmit={handleSubmit}>
-        <label>
-          Correo electrónico
-          <input type="email" value={email} onChange={e => setEmail(e.target.value)} required />
-        </label>
-        <label>
-          Contraseña
-          <input type="password" value={password} onChange={e => setPassword(e.target.value)} required />
-        </label>
-        <button type="submit" disabled={loading}>
-          {loading ? "Enviando..." : isLogin ? "Iniciar sesión" : "Registrarse"}
-        </button>
-      </form>
-      <button onClick={() => setIsLogin(!isLogin)} className="switch-auth">
-        {isLogin ? "¿No tienes cuenta? Regístrate" : "¿Ya tienes cuenta? Inicia sesión"}
-      </button>
-      {mensaje && <div className="mensaje-estado">{mensaje}</div>}
-    </div>
+    <>
+      <Navbar onLogout={onLogout} />
+      <Dashboard user={user} onLogout={onLogout} />
+    </>
   );
 }
 
+function NuevaMascotaPage({ user }) {
+  return <NuevaMascota user={user} />;
+}
+
+function MisMascotasPage({ user }) {
+  return <MascotasLista user={user} />;
+}
+
 function App() {
-  const [form, setForm] = useState({
-    nombreMascota: "",
-    raza: "",
-    edad: "",
-    nombreDuenio: "",
-    telefono: ""
-  });
-  const [loading, setLoading] = useState(false);
-  const [mensaje, setMensaje] = useState("");
-  const [mascotas, setMascotas] = useState([]);
-  const [cargandoMascotas, setCargandoMascotas] = useState(true);
-  const [fotoEditandoId, setFotoEditandoId] = useState(null);
-  const [fotoPreview, setFotoPreview] = useState({});
   const [user, setUser] = useState(null);
   const [checkingSession, setCheckingSession] = useState(true);
   const [sessionError, setSessionError] = useState("");
 
-  useEffect(() => {
-    async function checkSession() {
-      setCheckingSession(true);
-      setSessionError("");
-      try {
-        const { data } = await supabase.auth.getSession();
+  // Función robusta para obtener la sesión y usuario actual
+  const getAndSetSession = async () => {
+    setCheckingSession(true);
+    setSessionError("");
+    try {
+      const { data, error } = await supabase.auth.getSession();
+      if (error) {
+        setSessionError("Error al obtener la sesión: " + error.message);
+        setUser(null);
+      } else {
         setUser(data.session?.user || null);
-        if (data.session?.user) obtenerMascotas(data.session.user.id);
-      } catch (e) {
-        setSessionError("Error al obtener la sesión: " + e.message);
       }
-      setCheckingSession(false);
+    } catch (e) {
+      setSessionError("Error inesperado de sesión: " + e.message);
+      setUser(null);
     }
-    checkSession();
+    setCheckingSession(false);
+  };
+
+  useEffect(() => {
+    getAndSetSession();
     const { data: listener } = supabase.auth.onAuthStateChange((_event, session) => {
       setUser(session?.user || null);
-      if (session?.user) obtenerMascotas(session.user.id);
-      else setMascotas([]);
     });
     return () => {
       listener?.subscription.unsubscribe();
     };
-    // eslint-disable-next-line
   }, []);
 
-  const obtenerMascotas = async (userId) => {
-    setCargandoMascotas(true);
-    const { data } = await supabase
-      .from("mascotas")
-      .select("id, nombre_mascota, raza, edad, nombre_duenio, telefono, foto_url, fecha_registro")
-      .eq("user_id", userId)
-      .order("fecha_registro", { ascending: false });
-    setMascotas(data);
-    setCargandoMascotas(false);
-  };
-
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setForm({ ...form, [name]: value });
-  };
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setLoading(true);
-    setMensaje("");
-    if (!user) {
-      setMensaje("Debes iniciar sesión para registrar una mascota.");
-      setLoading(false);
-      return;
-    }
-    const { error } = await supabase.from("mascotas").insert([
-      {
-        nombre_mascota: form.nombreMascota,
-        raza: form.raza,
-        edad: form.edad ? parseInt(form.edad) : null,
-        nombre_duenio: form.nombreDuenio,
-        telefono: form.telefono,
-        foto_url: null,
-        user_id: user.id,
-      },
-    ]);
-    setLoading(false);
-    if (error) {
-      setMensaje("Error: " + (error.message || "al registrar la mascota. Intenta de nuevo."));
-    } else {
-      setMensaje("¡Mascota registrada exitosamente!");
-      setForm({ nombreMascota: "", raza: "", edad: "", nombreDuenio: "", telefono: "" });
-      obtenerMascotas(user.id);
-    }
-  };
-
   const handleLogout = async () => {
-    await supabase.auth.signOut();
+    try {
+      await supabase.auth.signOut();
+    } catch (e) {
+      // Si ocurre un error al cerrar sesión, lo ignoramos para no bloquear al usuario
+    }
     setUser(null);
-    setMascotas([]);
   };
 
-  const getBaseUrl = () => {
-    if (window.location.hostname === "localhost") {
-      return "http://localhost:3000";
-    }
-    return window.location.origin;
-  };
-
-  function grabarNFC(url) {
-    if ('NDEFWriter' in window) {
-      const ndef = new window.NDEFWriter();
-      ndef.write(url)
-        .then(() => {
-          alert('¡Enlace grabado en el NFC correctamente!');
-        })
-        .catch((error) => {
-          alert('Error al grabar el NFC: ' + error);
-        });
-    } else {
-      alert('Tu navegador no soporta escritura NFC. Usa Chrome en Android.');
-    }
-  }
+  if (checkingSession) return <div className="mensaje-estado">Verificando sesión...</div>;
+  if (sessionError) return <div className="mensaje-estado error">{sessionError}</div>;
 
   return (
-    <Router>
-      <Routes>
-        <Route
-          path="/"
-          element={
-            <div className="App">
-              <header className="App-header">
-                <h1>Registro de Mascotas</h1>
-                <nav style={{ marginBottom: 10 }}>
-                  <a href="/welcome.html" style={{ color: '#fff', marginRight: 16, textDecoration: 'underline' }}>¿Nuevo? ¿Qué es esto?</a>
-                  {user && <button onClick={handleLogout} className="logout-btn">Cerrar sesión</button>}
-                </nav>
-                <p>¡Bienvenido! Escanea tu llavero NFC para comenzar el registro de tu mascota.</p>
-              </header>
-              <main>
-                {checkingSession ? (
-                  <div className="mensaje-estado">Verificando sesión...</div>
-                ) : sessionError ? (
-                  <div className="mensaje-estado error">{sessionError}</div>
-                ) : !user ? (
-                  <AuthForm onAuth={() => supabase.auth.getSession().then(({ data }) => setUser(data.session?.user || null))} />
-                ) : (
-                  <>
-                    <form className="pet-form" onSubmit={handleSubmit}>
-                      <label>
-                        Nombre de la mascota
-                        <input
-                          type="text"
-                          name="nombreMascota"
-                          value={form.nombreMascota}
-                          onChange={handleChange}
-                          required
-                        />
-                      </label>
-                      <label>
-                        Raza
-                        <input
-                          type="text"
-                          name="raza"
-                          value={form.raza}
-                          onChange={handleChange}
-                          required
-                        />
-                      </label>
-                      <label>
-                        Edad
-                        <input
-                          type="number"
-                          name="edad"
-                          value={form.edad}
-                          onChange={handleChange}
-                          required
-                          min="0"
-                        />
-                      </label>
-                      <label>
-                        Nombre del dueño
-                        <input
-                          type="text"
-                          name="nombreDuenio"
-                          value={form.nombreDuenio}
-                          onChange={handleChange}
-                          required
-                        />
-                      </label>
-                      <label>
-                        Teléfono de contacto
-                        <input
-                          type="tel"
-                          name="telefono"
-                          value={form.telefono}
-                          onChange={handleChange}
-                          required
-                          pattern="[0-9]{10,15}"
-                          placeholder="Ej. 5551234567"
-                        />
-                      </label>
-                      <button type="submit" disabled={loading}>
-                        {loading ? "Registrando..." : "Registrar Mascota"}
-                      </button>
-                    </form>
-                    {mensaje && <div className="mensaje-estado">{mensaje}</div>}
-                    <section className="lista-mascotas">
-                      <h2>Mascotas Registradas</h2>
-                      {cargandoMascotas ? (
-                        <p>Cargando mascotas...</p>
-                      ) : mascotas.length === 0 ? (
-                        <p>No hay mascotas registradas aún.</p>
-                      ) : (
-                        <ul>
-                          {mascotas.map((m) => (
-                            <li key={m.id} className="mascota-item">
-                              {m.foto_url ? (
-                                <img src={fotoPreview[m.id] || m.foto_url} alt={m.nombre_mascota} className="foto-mascota" />
-                              ) : (
-                                <span className="foto-placeholder">Sin foto</span>
-                              )}
-                              <strong>{m.nombre_mascota}</strong> ({m.raza})<br />
-                              Edad: {m.edad || "-"} <br />
-                              Dueño: {m.nombre_duenio} <br />
-                              Tel: {m.telefono}
-                              <div style={{ margin: "1rem 0" }}>
-                                <QRCodeSVG
-                                  value={`${getBaseUrl()}/mascota/${m.id}`}
-                                  size={80}
-                                  bgColor="#fff"
-                                  fgColor="#4e73df"
-                                  level="H"
-                                  includeMargin={true}
-                                />
-                                <div style={{ fontSize: "0.9rem", marginTop: 4 }}>
-                                  <a href={`/mascota/${m.id}`} target="_blank" rel="noopener noreferrer">
-                                    Ver ficha pública
-                                  </a>
-                                </div>
-                                <div style={{ marginTop: 6 }}>
-                                  <input
-                                    type="text"
-                                    value={`${getBaseUrl()}/mascota/${m.id}`}
-                                    readOnly
-                                    style={{ width: "80%", fontSize: "0.95rem", marginRight: 4 }}
-                                    onFocus={e => e.target.select()}
-                                  />
-                                  <button
-                                    type="button"
-                                    style={{ fontSize: "0.95rem", padding: "2px 10px", marginRight: 4 }}
-                                    onClick={() => {
-                                      navigator.clipboard.writeText(`${getBaseUrl()}/mascota/${m.id}`);
-                                      alert("¡Enlace copiado al portapapeles! Ahora grábalo en tu llavero NFC.");
-                                    }}
-                                  >
-                                    Copiar enlace NFC
-                                  </button>
-                                  <button
-                                    type="button"
-                                    style={{ fontSize: "0.95rem", padding: "2px 10px" }}
-                                    onClick={() => grabarNFC(`${getBaseUrl()}/mascota/${m.id}`)}
-                                  >
-                                    Grabar enlace en NFC
-                                  </button>
-                                </div>
-                              </div>
-                              <button onClick={() => setFotoEditandoId(fotoEditandoId === m.id ? null : m.id)} style={{ marginBottom: 8 }}>
-                                {fotoEditandoId === m.id ? "Cancelar" : m.foto_url ? "Cambiar foto" : "Agregar foto"}
-                              </button>
-                              {fotoEditandoId === m.id && (
-                                <FotoMascotaEditor
-                                  mascota={m}
-                                  onFotoActualizada={(url) => {
-                                    setFotoPreview((prev) => ({ ...prev, [m.id]: url }));
-                                    setFotoEditandoId(null);
-                                    obtenerMascotas(user.id);
-                                  }}
-                                />
-                              )}
-                            </li>
-                          ))}
-                        </ul>
-                      )}
-                    </section>
-                  </>
-                )}
-              </main>
-            </div>
-          }
-        />
-        <Route path="/mascota/:id" element={<MascotaPublica />} />
-      </Routes>
-    </Router>
+    <Routes>
+      <Route path="/registro" element={<RegistroForm />} />
+      <Route path="/menu" element={user ? <MainMenu user={user} onLogout={handleLogout} /> : <Navigate to="/registro" />} />
+      <Route path="/mis-mascotas" element={user ? <><Navbar onLogout={handleLogout} /><MisMascotasPage user={user} /></> : <Navigate to="/registro" />} />
+      <Route path="/nueva-mascota" element={user ? <><Navbar onLogout={handleLogout} /><NuevaMascotaPage user={user} /></> : <Navigate to="/registro" />} />
+      <Route path="/perfil" element={user ? <><Navbar onLogout={handleLogout} /><Perfil user={user} /></> : <Navigate to="/registro" />} />
+      <Route path="/ayuda" element={user ? <><Navbar onLogout={handleLogout} /><Ayuda /></> : <Navigate to="/registro" />} />
+      <Route path="*" element={<Navigate to={user ? "/menu" : "/registro"} />} />
+      <Route path="/mascota/:id" element={<MascotaPublica />} />
+    </Routes>
   );
 }
 
-export default App;
+export default function AppWithRouter() {
+  return (
+    <Router>
+      <App />
+    </Router>
+  );
+}
