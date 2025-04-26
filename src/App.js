@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import "./App.css";
 import "./authFormStyles.css";
 import { supabase } from "./supabaseClient";
-import { QRCodeSVG } from "qrcode.react";
+// import { QRCodeSVG } from "qrcode.react";
 import { BrowserRouter as Router, Routes, Route, Navigate, useParams, Link } from "react-router-dom";
 import Dashboard from "./pages/Dashboard";
 import NuevaMascota from "./pages/NuevaMascota";
@@ -53,76 +53,76 @@ function MascotaPublica() {
   );
 }
 
-function FotoMascotaEditor({ mascota, onFotoActualizada }) {
-  const [foto, setFoto] = useState(null);
-  const [mensaje, setMensaje] = useState("");
-  const [loading, setLoading] = useState(false);
+// function FotoMascotaEditor({ mascota, onFotoActualizada }) {
+//   const [foto, setFoto] = useState(null);
+//   const [mensaje, setMensaje] = useState("");
+//   const [loading, setLoading] = useState(false);
 
-  const handleChange = (e) => {
-    setMensaje("");
-    const file = e.target.files[0];
-    if (!file) {
-      setFoto(null);
-      return;
-    }
-    if (!file.type.startsWith("image/")) {
-      setMensaje("El archivo seleccionado no es una imagen válida.");
-      setFoto(null);
-      return;
-    }
-    if (file.size > 5 * 1024 * 1024) {
-      setMensaje("La imagen es demasiado grande (máx 5MB).");
-      setFoto(null);
-      return;
-    }
-    setFoto(file);
-  };
+//   const handleChange = (e) => {
+//     setMensaje("");
+//     const file = e.target.files[0];
+//     if (!file) {
+//       setFoto(null);
+//       return;
+//     }
+//     if (!file.type.startsWith("image/")) {
+//       setMensaje("El archivo seleccionado no es una imagen válida.");
+//       setFoto(null);
+//       return;
+//     }
+//     if (file.size > 5 * 1024 * 1024) {
+//       setMensaje("La imagen es demasiado grande (máx 5MB).");
+//       setFoto(null);
+//       return;
+//     }
+//     setFoto(file);
+//   };
 
-  const handleUpload = async (e) => {
-    e.preventDefault();
-    if (!foto) {
-      setMensaje("Selecciona una imagen válida.");
-      return;
-    }
-    setLoading(true);
-    const nombreArchivo = `${mascota.id}_${Date.now()}_${foto.name}`;
-    const { error: storageError } = await supabase.storage
-      .from("mascotas")
-      .upload(nombreArchivo, foto, { cacheControl: "3600", upsert: true });
-    if (storageError) {
-      setMensaje("Error al subir la foto. Intenta de nuevo.");
-      setLoading(false);
-      return;
-    }
-    const foto_url = supabase.storage.from("mascotas").getPublicUrl(nombreArchivo).data.publicUrl;
-    // Actualizar mascota en la base de datos
-    const { error: updateError } = await supabase
-      .from("mascotas")
-      .update({ foto_url })
-      .eq("id", mascota.id);
-    setLoading(false);
-    if (updateError) {
-      setMensaje("Error al guardar la foto en la base de datos.");
-    } else {
-      setMensaje("Foto actualizada correctamente.");
-      setFoto(null);
-      onFotoActualizada && onFotoActualizada(foto_url);
-    }
-  };
+//   const handleUpload = async (e) => {
+//     e.preventDefault();
+//     if (!foto) {
+//       setMensaje("Selecciona una imagen válida.");
+//       return;
+//     }
+//     setLoading(true);
+//     const nombreArchivo = `${mascota.id}_${Date.now()}_${foto.name}`;
+//     const { error: storageError } = await supabase.storage
+//       .from("mascotas")
+//       .upload(nombreArchivo, foto, { cacheControl: "3600", upsert: true });
+//     if (storageError) {
+//       setMensaje("Error al subir la foto. Intenta de nuevo.");
+//       setLoading(false);
+//       return;
+//     }
+//     const foto_url = supabase.storage.from("mascotas").getPublicUrl(nombreArchivo).data.publicUrl;
+//     // Actualizar mascota en la base de datos
+//     const { error: updateError } = await supabase
+//       .from("mascotas")
+//       .update({ foto_url })
+//       .eq("id", mascota.id);
+//     setLoading(false);
+//     if (updateError) {
+//       setMensaje("Error al guardar la foto en la base de datos.");
+//     } else {
+//       setMensaje("Foto actualizada correctamente.");
+//       setFoto(null);
+//       onFotoActualizada && onFotoActualizada(foto_url);
+//     }
+//   };
 
-  return (
-    <form className="foto-mascota-editor" onSubmit={handleUpload}>
-      <label>
-        Nueva foto:
-        <input type="file" accept="image/*" onChange={handleChange} />
-      </label>
-      <button type="submit" disabled={loading} style={{ marginLeft: 8 }}>
-        {loading ? "Subiendo..." : "Actualizar Foto"}
-      </button>
-      {mensaje && <div className="mensaje-estado">{mensaje}</div>}
-    </form>
-  );
-}
+//   return (
+//     <form className="foto-mascota-editor" onSubmit={handleUpload}>
+//       <label>
+//         Nueva foto:
+//         <input type="file" accept="image/*" onChange={handleChange} />
+//       </label>
+//       <button type="submit" disabled={loading} style={{ marginLeft: 8 }}>
+//         {loading ? "Subiendo..." : "Actualizar Foto"}
+//       </button>
+//       {mensaje && <div className="mensaje-estado">{mensaje}</div>}
+//     </form>
+//   );
+// }
 
 function MainMenu({ user, onLogout }) {
   return (
