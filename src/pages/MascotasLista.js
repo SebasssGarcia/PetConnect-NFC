@@ -90,7 +90,7 @@ export default function MascotasLista({ user }) {
               <div style={{marginTop:8}}>
                 <QRCodeSVG value={`${window.location.origin}/mascota/${m.id}`} size={70} fgColor="#4e73df" />
                 <div style={{fontSize:"0.9rem",marginTop:4}}>
-                  <a href={`/mascota/${m.id}`} target="_blank" rel="noopener noreferrer">Ver ficha pública</a>
+                  <a href={`/mascota/${m.id_original || m.id}`} target="_blank" rel="noopener noreferrer">Ver ficha pública</a>
                 </div>
               </div>
               <button onClick={()=>setEditando(m)}>Editar</button>

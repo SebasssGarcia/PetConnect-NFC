@@ -15,7 +15,7 @@ export default function Dashboard({ user, onLogout }) {
     setCargandoMascotas(true);
     const { data } = await supabase
       .from("mascotas")
-      .select("id, nombre_mascota, raza, edad, nombre_duenio, telefono, foto_url, fecha_registro")
+      .select("id, id_original, nombre_mascota, raza, edad, nombre_duenio, telefono, foto_url, fecha_registro")
       .eq("user_id", user.id)
       .order("fecha_registro", { ascending: false });
     setMascotas(data || []);
@@ -44,9 +44,9 @@ export default function Dashboard({ user, onLogout }) {
                 <div>Dueño: {m.nombre_duenio}</div>
                 <div>Tel: {m.telefono}</div>
                 <div style={{marginTop:8}}>
-                  <QRCodeSVG value={`${window.location.origin}/mascota/${m.id}`} size={70} fgColor="#4e73df" />
+                  <QRCodeSVG value={`${window.location.origin}/mascota/${m.id_original || m.id}`} size={70} fgColor="#4e73df" />
                   <div style={{fontSize:"0.9rem",marginTop:4}}>
-                    <a href={`/mascota/${m.id}`} target="_blank" rel="noopener noreferrer">Ver ficha pública</a>
+                    <a href={`/mascota/${m.id_original || m.id}`} target="_blank" rel="noopener noreferrer">Ver ficha pública</a>
                   </div>
                 </div>
               </li>
