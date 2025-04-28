@@ -30,25 +30,19 @@ export default function RegistroForm({ onRegister }) {
       setSuccess("¡Registro exitoso! Revisa tu correo para confirmar tu cuenta antes de iniciar sesión.");
       setTimeout(() => {
         setShowLogin(true);
-      }, 1800);
-      onRegister && onRegister();
+      }, 2500);
     }
   };
 
   if (showLogin) {
-    return (
-      <div className="container">
-        <LoginForm onLogin={() => navigate("/menu")} />
-        <div style={{ marginTop: 16 }}>
-          ¿No tienes cuenta?{' '}
-          <button className="btn" onClick={() => setShowLogin(false)} style={{ background: "none", color: "#4e73df", border: "none", textDecoration: "underline", cursor: "pointer" }}>Registrarme</button>
-        </div>
-      </div>
-    );
+    return <LoginForm />;
   }
 
   return (
     <div className="container">
+      <div style={{ textAlign: "center", marginBottom: "1.5rem" }}>
+        <img src={process.env.PUBLIC_URL + '/LOGO NFC.png'} alt="Logo PetConnect" style={{ width: 120, marginBottom: 16 }} />
+      </div>
       <form className="form_area" onSubmit={handleSubmit}>
         <div className="title">Registro de usuario</div>
         <div className="sub_title">PetConnect NFC</div>
