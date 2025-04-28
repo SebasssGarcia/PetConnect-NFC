@@ -3,7 +3,7 @@ import "./App.css";
 import "./authFormStyles.css";
 import { supabase } from "./supabaseClient";
 // import { QRCodeSVG } from "qrcode.react";
-import { BrowserRouter as Router, Routes, Route, Navigate, useParams, Link } from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import Dashboard from "./pages/Dashboard";
 import NuevaMascota from "./pages/NuevaMascota";
 import MascotasLista from "./pages/MascotasLista";

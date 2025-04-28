@@ -1,10 +1,8 @@
 import React, { useState } from "react";
 import { supabase } from "./supabaseClient";
-import { useNavigate } from "react-router-dom";
 import LoginForm from "./LoginForm";
 
 export default function RegistroForm({ onRegister }) {
-  const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirm, setConfirm] = useState("");
