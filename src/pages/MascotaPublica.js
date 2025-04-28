@@ -10,11 +10,10 @@ export default function MascotaPublica({ user }) {
 
   useEffect(() => {
     const fetchMascota = async () => {
-      // Buscar por id o id_original para máxima compatibilidad
       let { data } = await supabase
         .from("mascotas")
         .select("*")
-        .or(`id.eq.${id},id_original.eq.${id}`)
+        .eq("id", id)
         .single();
       setMascota(data);
       setLoading(false);
@@ -39,7 +38,7 @@ export default function MascotaPublica({ user }) {
         <div className="foto-placeholder">Sin foto</div>
       )}
       <div className="datos-publicos">
-        <p><strong>ID de mascota:</strong> {mascota.id_original || mascota.id}</p>
+        <p><strong>ID de mascota:</strong> {mascota.id}</p>
         <p><strong>Nombre:</strong> {mascota.nombre_mascota}</p>
         <p><strong>Raza:</strong> {mascota.raza || "-"}</p>
         <p><strong>Edad:</strong> {mascota.edad || "-"}</p>

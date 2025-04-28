@@ -18,7 +18,6 @@ export default function NuevaMascota({ user }) {
   });
   const [mensaje, setMensaje] = useState("");
   const [loading, setLoading] = useState(false);
-  const [mascotaId, setMascotaId] = useState("");
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -29,11 +28,7 @@ export default function NuevaMascota({ user }) {
     e.preventDefault();
     setLoading(true);
     setMensaje("");
-    // Generar un ID único para la mascota
-    const generatedId = nanoid(10);
-    setMascotaId(generatedId);
     const nuevaMascota = {
-      id_original: generatedId,
       nombre_mascota: form.nombreMascota,
       especie: form.especie,
       raza: form.raza,
@@ -52,7 +47,7 @@ export default function NuevaMascota({ user }) {
     if (error) {
       setMensaje("Error: " + (error.message || "al registrar la mascota. Intenta de nuevo."));
     } else {
-      setMensaje(`¡Mascota registrada exitosamente! ID: ${generatedId}`);
+      setMensaje("¡Mascota registrada exitosamente!");
       setForm({ nombreMascota: "", especie: "", raza: "", edad: "", sexo: "", color: "", nombreDuenio: "", telefono: "", direccion: "", notas: "" });
     }
   };
@@ -95,7 +90,6 @@ export default function NuevaMascota({ user }) {
       </label>
       <button type="submit" disabled={loading}>{loading ? "Registrando..." : "Registrar mascota"}</button>
       {mensaje && <div className="mensaje-estado">{mensaje}</div>}
-      {mascotaId && <div className="mensaje-estado exito">ID de mascota: {mascotaId}</div>}
     </form>
   );
 }
